@@ -1,4 +1,5 @@
-FROM caddy:2.6-builder AS builder
+ARG CADDY_VERSION=2.6.2
+FROM caddy:${CADDY_VERSION}-builder AS builder
 
 RUN xcaddy build \
     --with github.com/caddy-dns/cloudflare \
@@ -6,10 +7,8 @@ RUN xcaddy build \
     --with github.com/greenpau/caddy-security \
     --with github.com/lucaslorentz/caddy-docker-proxy/plugin/v2
 
-RUN --mount=type=secret,id=CF_ZONE_TOKEN
-
-FROM caddy:2.6
+FROM caddy:${CADDY_VERSION}
 
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy
 
-CMD ["caddy", "--envfile", "/run/secrets/CF_ZONE_TOKEN", "docker-proxy"]
+CMD ["caddy", "docker-proxy"]
